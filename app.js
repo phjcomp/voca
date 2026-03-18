@@ -295,7 +295,7 @@ function nextCard() {
 }
 
 function flipCard() {
-    if (isFlipped) return;
+    if (isQuizMode || isFlipped) return;
     isFlipped = true;
     
     document.body.className = 'state-back';
@@ -424,7 +424,7 @@ function attachEventListeners() {
     
     // Keyboard Support (Arrows)
     document.addEventListener('keydown', (e) => {
-        if (views.card.classList.contains('hidden')) return;
+        if (views.card.classList.contains('hidden') || isQuizMode) return;
         
         if (!isFlipped && (e.code === 'Space' || e.code === 'Enter' || e.code === 'ArrowUp')) {
             flipCard();
@@ -447,7 +447,7 @@ function attachEventListeners() {
     });
 
     document.addEventListener('touchend', e => {
-        if (!isFlipped || views.card.classList.contains('hidden')) return;
+        if (!isFlipped || views.card.classList.contains('hidden') || isQuizMode) return;
         
         let touchEndX = e.changedTouches[0].screenX;
         let touchEndY = e.changedTouches[0].screenY;
