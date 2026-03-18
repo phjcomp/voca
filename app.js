@@ -210,6 +210,7 @@ function gradeAnswer(rating) {
     if (!currentWord) return;
     const id = currentWord.id;
     let rev = userData.reviews[id] || { step: 0, interval: 0, nextReview: 0 };
+    rev.seenCount = (rev.seenCount || 0) + 1;
     
     const now = Date.now();
     const M_MINUTE = 60 * 1000;
@@ -274,7 +275,14 @@ function nextCard() {
     
     // Populate Front
     dom.word.innerText = currentWord.word;
-    dom.pos.innerText = currentWord.pos;
+    
+    let rev = userData.reviews[currentWord.id];
+    let seenCount = (rev && rev.seenCount) ? rev.seenCount : 0;
+    if (seenCount === 0 && rev && rev.interval > 0) seenCount = 1; // Fallback for old data
+    
+    let seenStr = seenCount > 0 ? ` • Seen ${seenCount} times` : ' • New';
+    dom.pos.innerText = `${currentWord.pos}${seenStr}`;
+    
     dom.pronunciation.innerText = currentWord.pronunciation;
     
     // Pre-populate Back
