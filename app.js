@@ -164,7 +164,7 @@ function updateProgressUI() {
         return (rev.seenCount && rev.seenCount > 0) || rev.interval > 0;
     }).length;
     
-    dom.progress.innerText = `✨ ${mastered} Mastered  |  👀 ${seen} / ${total} Seen`;
+    dom.progress.innerText = `${mastered} Mastered  |  ${seen} / ${total} Seen`;
 }
 
 /* 
