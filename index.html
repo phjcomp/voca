@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#111111">
+    <title>SAT Vocab</title>
+    <link rel="stylesheet" href="styles.css?v=2">
+    
+    <!-- Fonts: Playfair Display for Serifs, Inter for Sans-Serif -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Ionicons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+<body>
+    <div id="app" class="state-loading">
+        <!-- Loading State -->
+        <div id="loading-view" class="view">
+            <h1 class="logo-font">Loading...</h1>
+        </div>
+
+        <!-- Auth View -->
+        <div id="auth-view" class="view hidden">
+            <h1 class="logo-font">SAT Vocab</h1>
+            <p class="subtitle">Super Minimalist Spaced Repetition</p>
+            <button id="btn-login" class="pill-btn primary">
+                <ion-icon name="logo-google"></ion-icon>
+                Sign in with Google
+            </button>
+        </div>
+
+        <!-- Main Card View -->
+        <div id="card-view" class="view hidden">
+            <!-- App Bar -->
+            <div class="top-bar">
+                <span class="progress-text" id="progress-text">Loading...</span>
+                <button class="icon-btn" id="btn-logout"><ion-icon name="log-out-outline"></ion-icon></button>
+            </div>
+
+            <div class="card-content-wrapper" id="card-trigger">
+                <!-- Word Section -->
+                <div class="word-section">
+                    <span class="part-of-speech" id="val-pos">VERB</span>
+                    <h1 class="target-word" id="val-word">contemplate</h1>
+                    
+                    <div class="pronunciation-row">
+                        <button class="icon-btn audio-btn" id="btn-audio">
+                            <ion-icon name="volume-high-outline"></ion-icon>
+                        </button>
+                        <span class="pronunciation" id="val-pronunciation">/pronunciation/</span>
+                    </div>
+                </div>
+
+                <!-- Back Details (Hidden on Front) -->
+                <div class="back-details" id="back-details">
+                    <div id="content-definition" style="margin-bottom: 2rem;">
+                        <h2 class="section-title">Definition</h2>
+                        <p class="main-definition" id="val-definition">look thoughtfully for a long time at.</p>
+                    </div>
+                    
+                    <div id="content-examples" style="padding-bottom: 2rem;">
+                        <h2 class="section-title">Examples</h2>
+                        <ul class="bullet-list" id="val-examples">
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="bottom-controls">
+                <!-- Front Controls -->
+                <div id="controls-front" class="control-group">
+                    <p class="hint-text">Tap anywhere to reveal</p>
+                </div>
+                
+                <!-- Back Controls -->
+                <div id="controls-back" class="control-group hidden">
+                    <button class="circle-btn btn-left" id="btn-known">
+                        <ion-icon name="thumbs-up-outline"></ion-icon>
+                    </button>
+                    <button class="circle-btn btn-up" id="btn-unsure">
+                        <ion-icon name="alert-outline"></ion-icon>
+                    </button>
+                    <button class="circle-btn btn-right" id="btn-unknown">
+                        <ion-icon name="thumbs-down-outline"></ion-icon>
+                    </button>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <script type="module" src="app.js?v=5"></script>
+</body>
+</html>
