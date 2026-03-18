@@ -154,21 +154,17 @@ function loadLocalData() {
 
 function updateProgressUI() {
     const total = allWords.length;
-    const now = Date.now();
     
-    // Seen: words that have been reviewed at least once
-    const seen = Object.keys(userData.reviews).length;
+    // Mastered: step >= 3 (Correct 3 times)
+    const mastered = Object.keys(userData.reviews).filter(id => userData.reviews[id].step >= 3).length;
     
-    // Due: words that need to be reviewed right now
-    let dueCount = 0;
-    for (const w of allWords) {
-        const reviewData = userData.reviews[w.id];
-        if (reviewData && reviewData.nextReview <= now) {
-            dueCount++;
-        }
-    }
+    // Seen: seenCount > 0 or has interval (fallback for old data)
+    const seen = Object.keys(userData.reviews).filter(id => {
+        const rev = userData.reviews[id];
+        return (rev.seenCount && rev.seenCount > 0) || rev.interval > 0;
+    }).length;
     
-    dom.progress.innerText = `🔥 ${dueCount} Due  |  👀 ${seen} / ${total} Seen`;
+    dom.progress.innerText = `✨ ${mastered} Mastered  |  👀 ${seen} / ${total} Seen`;
 }
 
 /* 
@@ -326,7 +322,13 @@ function generateQuiz() {
     candidates.sort(() => 0.5 - Math.random());
     
     for (let i = 0; i < 3; i++) {
-        options.push({ text: candidates[i].definition, correct: false, word: candidates[i].word });
+        let cw = candidates[i];
+        options.push({ text: cw.definition, correct: false, word: cw.word });
+        
+        // Count as "Seen" because it was presented as an option
+        let r = userData.reviews[cw.id] || { step: 0, interval: 0, nextReview: 0 };
+        r.seenCount = (r.seenCount || 0) + 1;
+        userData.reviews[cw.id] = r;
     }
     
     options.sort(() => 0.5 - Math.random());
