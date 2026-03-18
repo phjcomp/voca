@@ -240,10 +240,12 @@ function nextCard() {
     dom.quizOptions.innerHTML = '';
     
     if (isQuizMode) {
+        dom.btnMode.innerText = 'Study';
         dom.quizOptions.classList.remove('hidden');
         dom.controlsFront.style.display = 'none';
         generateQuiz();
     } else {
+        dom.btnMode.innerText = 'Quiz';
         dom.quizOptions.classList.add('hidden');
         dom.controlsFront.style.display = 'flex';
     }

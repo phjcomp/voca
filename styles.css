@@ -286,7 +286,23 @@ button {
 /* Quiz UI */
 .top-actions {
     display: flex;
-    gap: 8px;
+    gap: 12px;
+    align-items: center;
+}
+
+.mode-btn {
+    padding: 6px 16px;
+    border-radius: 999px;
+    border: 1.5px solid var(--border-color);
+    font-size: 0.9rem;
+    font-weight: 600;
+    background: transparent;
+    color: var(--text-main);
+    transition: all 0.2s;
+    cursor: pointer;
+}
+.mode-btn:active {
+    transform: scale(0.95);
 }
 
 .quiz-options {
