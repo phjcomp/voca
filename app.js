@@ -240,7 +240,6 @@ function nextCard() {
     dom.controlsBack.style.display = 'none';
     
     // Quiz Mode Logic
-    dom.quizOptions.classList.remove('disabled');
     dom.quizOptions.innerHTML = '';
     
     if (isQuizMode) {
@@ -291,14 +290,15 @@ function flipCard() {
 }
 
 function generateQuiz() {
+    let quizAnswered = false;
     let options = [];
-    options.push({ text: currentWord.definition, correct: true });
+    options.push({ text: currentWord.definition, correct: true, word: currentWord.word });
     
     let candidates = allWords.filter(w => w.id !== currentWord.id);
     candidates.sort(() => 0.5 - Math.random());
     
     for (let i = 0; i < 3; i++) {
-        options.push({ text: candidates[i].definition, correct: false });
+        options.push({ text: candidates[i].definition, correct: false, word: candidates[i].word });
     }
     
     options.sort(() => 0.5 - Math.random());
@@ -306,22 +306,40 @@ function generateQuiz() {
     options.forEach(opt => {
         const btn = document.createElement('button');
         btn.className = 'quiz-btn';
-        btn.innerText = opt.text;
+        btn.innerHTML = `<div class="quiz-def">${opt.text}</div>`;
+        btn.optData = opt;
+        
         btn.onclick = (e) => {
             e.stopPropagation();
-            dom.quizOptions.classList.add('disabled');
+            if (quizAnswered) return;
+            quizAnswered = true;
             
-            if (opt.correct) {
-                btn.classList.add('correct');
-                setTimeout(() => processAnswer('known'), 600);
-            } else {
-                btn.classList.add('wrong');
-                const allBtns = dom.quizOptions.querySelectorAll('.quiz-btn');
-                allBtns.forEach(b => {
-                    if (b.innerText === currentWord.definition) b.classList.add('correct');
-                });
-                setTimeout(() => processAnswer('unknown'), 2500);
-            }
+            gradeAnswer(opt.correct ? 'known' : 'unknown');
+            
+            const allBtns = dom.quizOptions.querySelectorAll('.quiz-btn');
+            allBtns.forEach(b => {
+                const bOpt = b.optData;
+                if (bOpt.correct) b.classList.add('correct');
+                else if (b === btn) b.classList.add('wrong');
+                
+                const wordSpan = document.createElement('div');
+                wordSpan.className = 'quiz-word-reveal';
+                wordSpan.innerText = `👉 ${bOpt.word}`;
+                b.insertBefore(wordSpan, b.firstChild);
+            });
+            
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'pill-btn primary';
+            nextBtn.style.marginTop = '16px';
+            nextBtn.style.alignSelf = 'center';
+            nextBtn.style.padding = '12px 32px';
+            nextBtn.style.fontSize = '1.1rem';
+            nextBtn.innerText = 'Next ➔';
+            nextBtn.onclick = (ev) => {
+                ev.stopPropagation();
+                nextCard();
+            };
+            dom.quizOptions.appendChild(nextBtn);
         };
         dom.quizOptions.appendChild(btn);
     });
