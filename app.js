@@ -39,7 +39,7 @@ let currentUser = null;
 let currentWord = null;
 let isFlipped = false;
 let isSyncing = false;
-let isQuizMode = false;
+let isQuizMode = true;
 
 // DOM Elements
 const views = {
