@@ -39,6 +39,7 @@ let currentUser = null;
 let currentWord = null;
 let isFlipped = false;
 let isSyncing = false;
+let isQuizMode = false;
 
 // DOM Elements
 const views = {
@@ -61,8 +62,9 @@ const dom = {
     controlsBack: document.getElementById('controls-back'),
     
     btnLogin: document.getElementById('btn-login'),
-    btnLogout: document.getElementById('btn-logout'),
     btnAudio: document.getElementById('btn-audio'),
+    btnMode: document.getElementById('btn-mode'),
+    quizOptions: document.getElementById('quiz-options'),
     
     btnKnown: document.getElementById('btn-known'),
     btnUnsure: document.getElementById('btn-unsure'),
@@ -231,9 +233,20 @@ function nextCard() {
     document.body.className = 'state-front';
     dom.backDetails.style.display = 'none';
     dom.backDetails.scrollTop = 0;
-    dom.controlsFront.style.display = 'none';
     dom.controlsBack.style.display = 'none';
-    dom.controlsFront.style.display = 'flex';
+    
+    // Quiz Mode Logic
+    dom.quizOptions.classList.remove('disabled');
+    dom.quizOptions.innerHTML = '';
+    
+    if (isQuizMode) {
+        dom.quizOptions.classList.remove('hidden');
+        dom.controlsFront.style.display = 'none';
+        generateQuiz();
+    } else {
+        dom.quizOptions.classList.add('hidden');
+        dom.controlsFront.style.display = 'flex';
+    }
     
     // Populate Front
     dom.word.innerText = currentWord.word;
@@ -265,6 +278,43 @@ function flipCard() {
     dom.backDetails.style.display = 'block';
     dom.controlsFront.style.display = 'none';
     dom.controlsBack.style.display = 'flex';
+}
+
+function generateQuiz() {
+    let options = [];
+    options.push({ text: currentWord.definition, correct: true });
+    
+    let candidates = allWords.filter(w => w.id !== currentWord.id);
+    candidates.sort(() => 0.5 - Math.random());
+    
+    for (let i = 0; i < 3; i++) {
+        options.push({ text: candidates[i].definition, correct: false });
+    }
+    
+    options.sort(() => 0.5 - Math.random());
+    
+    options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'quiz-btn';
+        btn.innerText = opt.text;
+        btn.onclick = (e) => {
+            e.stopPropagation();
+            dom.quizOptions.classList.add('disabled');
+            
+            if (opt.correct) {
+                btn.classList.add('correct');
+                setTimeout(() => processAnswer('known'), 600);
+            } else {
+                btn.classList.add('wrong');
+                const allBtns = dom.quizOptions.querySelectorAll('.quiz-btn');
+                allBtns.forEach(b => {
+                    if (b.innerText === currentWord.definition) b.classList.add('correct');
+                });
+                setTimeout(() => processAnswer('unknown'), 2500);
+            }
+        };
+        dom.quizOptions.appendChild(btn);
+    });
 }
 
 function showView(viewId) {
@@ -302,6 +352,11 @@ function attachEventListeners() {
         } else {
             showView('auth');
         }
+    });
+
+    dom.btnMode.addEventListener('click', () => {
+        isQuizMode = !isQuizMode;
+        nextCard();
     });
 
     // Card Flipping & Tabbing
