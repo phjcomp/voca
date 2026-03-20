@@ -62,6 +62,7 @@ const dom = {
     controlsBack: document.getElementById('controls-back'),
     controlsQuiz: document.getElementById('controls-quiz'),
     
+    btnTheme: document.getElementById('btn-theme'),
     btnLogin: document.getElementById('btn-login'),
     btnLogout: document.getElementById('btn-logout'),
     btnAudio: document.getElementById('btn-audio'),
@@ -157,8 +158,8 @@ function loadLocalData() {
 function updateProgressUI() {
     const total = allWords.length;
     
-    // Mastered: step >= 3 (Correct 3 times)
-    const mastered = Object.keys(userData.reviews).filter(id => userData.reviews[id].step >= 3).length;
+    // Known: step >= 1 (Got correct at least once)
+    const known = Object.keys(userData.reviews).filter(id => userData.reviews[id].step >= 1).length;
     
     // Seen: seenCount > 0 or has interval (fallback for old data)
     const seen = Object.keys(userData.reviews).filter(id => {
@@ -166,7 +167,7 @@ function updateProgressUI() {
         return (rev.seenCount && rev.seenCount > 0) || rev.interval > 0;
     }).length;
     
-    dom.progress.innerText = `${mastered} Mastered  |  ${seen} / ${total} Seen`;
+    dom.progress.innerText = `${known} Known  |  ${seen} / ${total} Seen`;
 }
 
 /* 
@@ -399,6 +400,25 @@ function attachEventListeners() {
         } else {
             showView('auth');
         }
+    });
+
+    // Theme Toggle
+    let isLightMode = localStorage.getItem('sat_vocab_theme') === 'light';
+    function applyTheme() {
+        if (isLightMode) {
+            document.body.classList.add('light-mode');
+            dom.btnTheme.innerHTML = '<ion-icon name="sunny-outline"></ion-icon>';
+        } else {
+            document.body.classList.remove('light-mode');
+            dom.btnTheme.innerHTML = '<ion-icon name="moon-outline"></ion-icon>';
+        }
+    }
+    applyTheme();
+    
+    dom.btnTheme.addEventListener('click', () => {
+        isLightMode = !isLightMode;
+        localStorage.setItem('sat_vocab_theme', isLightMode ? 'light' : 'dark');
+        applyTheme();
     });
 
     // Mode Toggle

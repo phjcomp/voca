@@ -8,9 +8,16 @@
     --border-color: rgba(240, 240, 240, 0.2);
     
     --font-serif: 'Playfair Display', serif;
-    --font-sans: 'Inter', sans-serif;
-    
     --transition: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+body.light-mode {
+    --bg-front: #f8f9fa;
+    --bg-back: #ffffff;
+    --bg-white: #ffffff;
+    --text-main: #111111;
+    --text-faded: rgba(17, 17, 17, 0.6);
+    --border-color: rgba(17, 17, 17, 0.15);
 }
 
 * {
@@ -28,7 +35,7 @@ body, html {
     background-color: var(--bg-front);
     overflow: hidden;
     position: fixed; /* Lock viewport */
-    transition: background-color var(--transition);
+    transition: background-color var(--transition), color var(--transition);
 }
 
 /* App Container */
