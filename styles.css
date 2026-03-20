@@ -159,7 +159,7 @@ button {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    padding-top: 5vh;
+    padding-top: 2vh;
     cursor: pointer; /* Tap to flip */
     overflow: hidden;
 }
