@@ -195,9 +195,7 @@ function updateProgressUI() {
         }
     }
     
-    const turnStr = `(Turn ${minSeen + 1})`;
-    
-    dom.progress.innerText = `${known} Known  |  ${turnStr} ${currentTurnSeen} / ${total} Seen`;
+    dom.progress.innerText = `✅ ${known}  |  🔄 T${minSeen + 1}: ${currentTurnSeen}/${total}`;
 }
 
 /* 
