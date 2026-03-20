@@ -60,6 +60,7 @@ const dom = {
     backDetails: document.getElementById('back-details'),
     controlsFront: document.getElementById('controls-front'),
     controlsBack: document.getElementById('controls-back'),
+    controlsQuiz: document.getElementById('controls-quiz'),
     
     btnLogin: document.getElementById('btn-login'),
     btnLogout: document.getElementById('btn-logout'),
@@ -70,7 +71,8 @@ const dom = {
     
     btnKnown: document.getElementById('btn-known'),
     btnUnsure: document.getElementById('btn-unsure'),
-    btnUnknown: document.getElementById('btn-unknown')
+    btnUnknown: document.getElementById('btn-unknown'),
+    btnNextQuiz: document.getElementById('btn-next-quiz')
 };
 
 /* 
@@ -260,6 +262,7 @@ function nextCard() {
         
         dom.quizOptions.classList.remove('hidden');
         dom.controlsFront.style.display = 'none';
+        dom.controlsQuiz.style.display = 'none';
         
         generateQuiz();
     } else {
@@ -268,6 +271,7 @@ function nextCard() {
         
         dom.quizOptions.classList.add('hidden');
         dom.controlsFront.style.display = 'flex';
+        dom.controlsQuiz.style.display = 'none';
     }
     
     // Populate Front
@@ -354,18 +358,7 @@ function generateQuiz() {
                 b.insertBefore(wordSpan, b.firstChild);
             });
             
-            const nextBtn = document.createElement('button');
-            nextBtn.className = 'pill-btn primary';
-            nextBtn.style.marginTop = '16px';
-            nextBtn.style.alignSelf = 'center';
-            nextBtn.style.padding = '12px 32px';
-            nextBtn.style.fontSize = '1.1rem';
-            nextBtn.innerText = 'Next ➔';
-            nextBtn.onclick = (ev) => {
-                ev.stopPropagation();
-                nextCard();
-            };
-            dom.quizOptions.appendChild(nextBtn);
+            dom.controlsQuiz.style.display = 'flex';
         };
         dom.quizOptions.appendChild(btn);
     });
@@ -432,6 +425,10 @@ function attachEventListeners() {
     dom.btnKnown.addEventListener('click', () => processAnswer('known'));
     dom.btnUnsure.addEventListener('click', () => processAnswer('unsure'));
     dom.btnUnknown.addEventListener('click', () => processAnswer('unknown'));
+    dom.btnNextQuiz.addEventListener('click', (e) => {
+        e.stopPropagation();
+        nextCard();
+    });
     
     // Keyboard Support (Arrows)
     document.addEventListener('keydown', (e) => {
