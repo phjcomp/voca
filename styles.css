@@ -366,22 +366,7 @@ button {
 .quiz-def {
     font-size: 1rem;
     line-height: 1.4;
-    color: var(--text-faded);
-}
-.quiz-btn.correct .quiz-def, .quiz-btn.wrong .quiz-def { color: var(--text-main); }
-
-.quiz-word-reveal {
-    font-size: 1.15rem;
-    font-weight: 700;
     color: var(--text-main);
-    margin-bottom: 6px;
-    font-family: var(--font-serif);
-    letter-spacing: 0.02em;
-}
-.quiz-def {
-    font-size: 1rem;
-    line-height: 1.4;
-    color: var(--text-faded);
 }
 .quiz-btn.correct .quiz-def, .quiz-btn.wrong .quiz-def { color: var(--text-main); }
 

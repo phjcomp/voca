@@ -263,7 +263,8 @@ function nextCard() {
     currentWord = getNextWord();
     
     // Reset classes and scroll position
-    document.body.className = 'state-front';
+    document.body.classList.remove('state-back', 'state-auth');
+    document.body.classList.add('state-front');
     dom.backDetails.style.display = 'none';
     dom.backDetails.scrollTop = 0;
     dom.controlsBack.style.display = 'none';
@@ -322,7 +323,8 @@ function flipCard() {
     if (isQuizMode || isFlipped) return;
     isFlipped = true;
     
-    document.body.className = 'state-back';
+    document.body.classList.remove('state-front');
+    document.body.classList.add('state-back');
     dom.backDetails.style.display = 'block';
     dom.controlsFront.style.display = 'none';
     dom.controlsBack.style.display = 'flex';
@@ -382,7 +384,12 @@ function generateQuiz() {
 function showView(viewId) {
     Object.keys(views).forEach(key => views[key].classList.add('hidden'));
     views[viewId].classList.remove('hidden');
-    if (viewId === 'auth') document.body.className = 'state-auth';
+    if (viewId === 'auth') {
+        document.body.classList.remove('state-front', 'state-back');
+        document.body.classList.add('state-auth');
+    } else {
+        document.body.classList.remove('state-auth');
+    }
 }
 
 // Text to Speech
