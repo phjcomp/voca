@@ -397,7 +397,7 @@ function generateQuiz() {
             if (opt.correct) {
                 currentCombo++;
             } else {
-                currentCombo = Math.max(0, currentCombo - 1);
+                currentCombo--;
             }
             
             gradeAnswer(opt.correct ? 'known' : 'unknown');
