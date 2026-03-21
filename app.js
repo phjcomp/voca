@@ -40,6 +40,7 @@ let currentWord = null;
 let isFlipped = false;
 let isSyncing = false;
 let isQuizMode = true;
+let currentCombo = 0;
 
 // DOM Elements
 const views = {
