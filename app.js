@@ -645,7 +645,7 @@ function renderDeckList() {
             activeDeckId = d.id;
             localStorage.setItem('activeDeckId', activeDeckId);
             showView('loading');
-            await initApp();
+            await init();
         };
         dom.deckList.appendChild(item);
     });
