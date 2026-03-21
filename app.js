@@ -174,13 +174,13 @@ async function syncDataFromCloud() {
                 if (!userData.decks['sat_word_smart']) userData.decks['sat_word_smart'] = { reviews: {} };
                 
                 userData.decks['sat_word_smart'].reviews = {
-                    ...userData.decks['sat_word_smart'].reviews,
-                    ...userData.reviews
+                    ...userData.reviews,
+                    ...userData.decks['sat_word_smart'].reviews
                 };
                 delete userData.reviews;
                 
                 // Immediately save the securely migrated data back to the cloud
-                await setDoc(docRef, userData, { merge: true });
+                await setDoc(docRef, userData); // Replace document entirely to permanently purge the legacy reviews block
             }
             
             if (!getDeckData().reviews) userData.decks[activeDeckId].reviews = {};
@@ -222,11 +222,15 @@ function loadLocalData() {
             if (!userData.decks['sat_word_smart']) userData.decks['sat_word_smart'] = { reviews: {} };
             
             userData.decks['sat_word_smart'].reviews = {
-                ...userData.decks['sat_word_smart'].reviews,
-                ...userData.reviews
+                ...userData.reviews,
+                ...userData.decks['sat_word_smart'].reviews
             };
             delete userData.reviews;
-            syncDataToCloud();
+            
+            // Sync up to ensure local purge hits cloud without merge flag
+            if (hasFirebaseConfig && currentUser) {
+                setDoc(doc(db, "users", currentUser.uid), userData);
+            }
         }
         
         if (!getDeckData().reviews) userData.decks[activeDeckId].reviews = {};
