@@ -383,6 +383,12 @@ function generateQuiz() {
             if (quizAnswered) return;
             quizAnswered = true;
             
+            if (opt.correct) {
+                currentCombo++;
+            } else {
+                currentCombo = Math.max(0, currentCombo - 1);
+            }
+            
             gradeAnswer(opt.correct ? 'known' : 'unknown');
             
             const allBtns = dom.quizOptions.querySelectorAll('.quiz-btn');
@@ -393,13 +399,52 @@ function generateQuiz() {
                 
                 const wordSpan = document.createElement('div');
                 wordSpan.className = 'quiz-word-reveal';
+                wordSpan.style.display = 'flex';
+                wordSpan.style.alignItems = 'center';
                 
-                // Add pronunciation display logic
+                const speakerBtn = document.createElement('button');
+                speakerBtn.className = 'icon-btn audio-btn';
+                speakerBtn.style.padding = '0';
+                speakerBtn.style.marginRight = '8px';
+                speakerBtn.style.width = '24px';
+                speakerBtn.style.height = '24px';
+                speakerBtn.innerHTML = '<ion-icon name="volume-high-outline"></ion-icon>';
+                speakerBtn.onclick = (ev) => {
+                    ev.stopPropagation();
+                    speak(bOpt.word);
+                };
+                
+                const textSpan = document.createElement('span');
                 let pronunStr = bOpt.pronunciation ? ` <span class="quiz-pronun">(${bOpt.pronunciation})</span>` : '';
-                wordSpan.innerHTML = `👉 ${bOpt.word}${pronunStr}`;
+                textSpan.innerHTML = `${bOpt.word}${pronunStr}`;
                 
+                wordSpan.appendChild(speakerBtn);
+                wordSpan.appendChild(textSpan);
                 b.insertBefore(wordSpan, b.firstChild);
             });
+            
+            if (currentCombo > 0) {
+                const floatTxt = document.createElement('div');
+                floatTxt.innerText = `${currentCombo} Combo!`;
+                floatTxt.style.position = 'absolute';
+                floatTxt.style.right = '20px';
+                floatTxt.style.color = '#ff9800';
+                floatTxt.style.fontWeight = 'bold';
+                floatTxt.style.fontSize = '1.1rem';
+                floatTxt.style.pointerEvents = 'none';
+                floatTxt.style.animation = 'floatUp 1s ease-out forwards';
+                btn.appendChild(floatTxt);
+            }
+            
+            const topCombo = document.getElementById('combo-display');
+            if (topCombo) {
+                if (currentCombo >= 10) {
+                    topCombo.innerText = `🔥 ${currentCombo} COMBO!`;
+                    topCombo.style.opacity = '1';
+                } else {
+                    topCombo.style.opacity = '0';
+                }
+            }
             
             dom.controlsQuiz.style.display = 'flex';
         };
