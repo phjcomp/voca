@@ -104,7 +104,7 @@ async function init() {
     try {
         // Load Dictionary JSON
                 const activeDeck = APP_DECKS.find(d => d.id === activeDeckId) || APP_DECKS[0];
-        const response = await fetch(activeDeck.file + '?v=45');
+        const response = await fetch(activeDeck.file + '?v=47');
         allWords = await response.json();
     } catch (e) {
         alert("Failed to load dictionary. Please check if words.json is present.");
@@ -537,8 +537,7 @@ function generateQuiz() {
                     const rootsSpan = document.createElement('div');
                     rootsSpan.style.marginTop = '4px';
                     rootsSpan.style.fontSize = '0.9rem';
-                    rootsSpan.style.color = '#888';
-                    rootsSpan.innerHTML = `<em>Roots: ${bOpt.roots}</em>`;
+                    rootsSpan.innerHTML = `<em>${bOpt.roots}</em>`;
                     rootsSpan.style.marginLeft = '32px';
                     wordContainer.appendChild(rootsSpan);
                 }
@@ -740,7 +739,7 @@ function renderDeckList() {
             showView('loading');
             
             try {
-                const response = await fetch(d.file + '?v=45');
+                const response = await fetch(d.file + '?v=47');
                 allWords = await response.json();
             } catch (e) {
                 console.error("Failed to load deck:", e);
