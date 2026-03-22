@@ -9,13 +9,13 @@ import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/fireb
  * --------------------------------------------------------------------------
  */
 const firebaseConfig = {
-  apiKey: "AIzaSyCaK4SbAEUjIE65jizDY2fqbvUpZMspng8",
-  authDomain: "voca-9f610.firebaseapp.com",
-  projectId: "voca-9f610",
-  storageBucket: "voca-9f610.firebasestorage.app",
-  messagingSenderId: "869261146669",
-  appId: "1:869261146669:web:ce613469bc3986cc8f96a4",
-  measurementId: "G-V2MNKMCFLQ"
+    apiKey: "AIzaSyCaK4SbAEUjIE65jizDY2fqbvUpZMspng8",
+    authDomain: "voca-9f610.firebaseapp.com",
+    projectId: "voca-9f610",
+    storageBucket: "voca-9f610.firebasestorage.app",
+    messagingSenderId: "869261146669",
+    appId: "1:869261146669:web:ce613469bc3986cc8f96a4",
+    measurementId: "G-V2MNKMCFLQ"
 };
 
 let app, auth, db;
@@ -76,13 +76,13 @@ const dom = {
     definition: document.getElementById('val-definition'),
     examples: document.getElementById('val-examples'),
     progress: document.getElementById('progress-text'),
-    
+
     cardTrigger: document.getElementById('card-trigger'),
     backDetails: document.getElementById('back-details'),
     controlsFront: document.getElementById('controls-front'),
     controlsBack: document.getElementById('controls-back'),
     controlsQuiz: document.getElementById('controls-quiz'),
-    
+
     btnTheme: document.getElementById('btn-theme'),
     btnLogin: document.getElementById('btn-login'),
     btnLogout: document.getElementById('btn-logout'),
@@ -90,7 +90,7 @@ const dom = {
     modeStudy: document.getElementById('mode-study'),
     modeQuiz: document.getElementById('mode-quiz'),
     quizOptions: document.getElementById('quiz-options'),
-    
+
     btnKnown: document.getElementById('btn-known'),
     btnUnsure: document.getElementById('btn-unsure'),
     btnUnknown: document.getElementById('btn-unknown'),
@@ -103,7 +103,7 @@ const dom = {
 async function init() {
     try {
         // Load Dictionary JSON
-                const activeDeck = APP_DECKS.find(d => d.id === activeDeckId) || APP_DECKS[0];
+        const activeDeck = APP_DECKS.find(d => d.id === activeDeckId) || APP_DECKS[0];
         const response = await fetch(activeDeck.file + '?v=47');
         allWords = await response.json();
     } catch (e) {
@@ -120,7 +120,7 @@ async function init() {
                 if (userData.reviews || userData.combo !== undefined) {
                     if (!userData.decks) userData.decks = {};
                     if (!userData.decks['sat_word_smart']) userData.decks['sat_word_smart'] = { reviews: {} };
-                    
+
                     if (userData.reviews) {
                         userData.decks['sat_word_smart'].reviews = {
                             ...userData.decks['sat_word_smart'].reviews,
@@ -156,7 +156,7 @@ async function init() {
         showView('card');
         nextCard();
     }
-    
+
     attachEventListeners();
 }
 
@@ -174,12 +174,12 @@ async function syncDataFromCloud() {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
             userData = docSnap.data();
-            
+
             // AGGRESSIVE RECOVERY MIGRATION: Restore orphaned legacy data safely!
             if (userData.reviews || userData.combo !== undefined) {
                 if (!userData.decks) userData.decks = {};
                 if (!userData.decks['sat_word_smart']) userData.decks['sat_word_smart'] = { reviews: {} };
-                
+
                 if (userData.reviews) {
                     userData.decks['sat_word_smart'].reviews = {
                         ...userData.reviews,
@@ -187,16 +187,16 @@ async function syncDataFromCloud() {
                     };
                     delete userData.reviews;
                 }
-                
+
                 if (userData.combo !== undefined) {
                     userData.decks['sat_word_smart'].combo = userData.combo;
                     delete userData.combo;
                 }
-                
+
                 // Immediately save the securely migrated data back to the cloud
                 await setDoc(docRef, userData); // Replace document entirely to permanently purge the legacy data block
             }
-            
+
             if (!getDeckData().reviews) userData.decks[activeDeckId].reviews = {};
         } else {
             // New user, ensure completely clean slate
@@ -214,7 +214,7 @@ async function syncDataToCloud() {
     // Always save locally immediately using scoped key
     localStorage.setItem(getStorageKey(), JSON.stringify(userData));
     updateProgressUI();
-    
+
     // Async save to cloud
     if (hasFirebaseConfig && currentUser) {
         try {
@@ -229,12 +229,12 @@ function loadLocalData() {
     const saved = localStorage.getItem(getStorageKey());
     if (saved) {
         userData = JSON.parse(saved);
-        
+
         // AGGRESSIVE RECOVERY MIGRATION (Local)
         if (userData.reviews || userData.combo !== undefined) {
             if (!userData.decks) userData.decks = {};
             if (!userData.decks['sat_word_smart']) userData.decks['sat_word_smart'] = { reviews: {} };
-            
+
             if (userData.reviews) {
                 userData.decks['sat_word_smart'].reviews = {
                     ...userData.reviews,
@@ -242,18 +242,18 @@ function loadLocalData() {
                 };
                 delete userData.reviews;
             }
-            
+
             if (userData.combo !== undefined) {
                 userData.decks['sat_word_smart'].combo = userData.combo;
                 delete userData.combo;
             }
-            
+
             // Sync up to ensure local purge hits cloud without merge flag
             if (hasFirebaseConfig && currentUser) {
                 setDoc(doc(db, "users", currentUser.uid), userData);
             }
         }
-        
+
         if (!getDeckData().reviews) userData.decks[activeDeckId].reviews = {};
     } else {
         userData = { reviews: {} };
@@ -262,10 +262,10 @@ function loadLocalData() {
 
 function updateProgressUI() {
     const total = allWords.length;
-    
+
     // Known: step >= 1 (Got correct at least once)
     const known = Object.keys(getDeckData().reviews).filter(id => getDeckData().reviews[id].step >= 1).length;
-    
+
     // Calculate cycles/turns based on the minimum seenCount across ALL words.
     let minSeen = Infinity;
     for (const w of allWords) {
@@ -275,7 +275,7 @@ function updateProgressUI() {
         if (sc < minSeen) minSeen = sc;
     }
     if (minSeen === Infinity) minSeen = 0; // Fallback
-    
+
     // Progress for the *current* turn.
     let currentTurnSeen = 0;
     for (const w of allWords) {
@@ -285,7 +285,7 @@ function updateProgressUI() {
             currentTurnSeen++;
         }
     }
-    
+
     dom.progress.innerText = `${known} Known | Turn ${minSeen + 1}: ${currentTurnSeen}/${total} Seen`;
 }
 
@@ -296,8 +296,11 @@ function getNextWord() {
     const now = Date.now();
     let dueReviews = [];
     let newWords = [];
-    
+
     for (const w of allWords) {
+        // Prevent repeating the exact same word twice in a row
+        if (currentWord && w.id === currentWord.id) continue;
+
         const reviewData = getDeckData().reviews[w.id];
         if (reviewData && reviewData.interval > 0) {
             // Collect all due reviews for priority 1
@@ -309,19 +312,32 @@ function getNextWord() {
             newWords.push(w);
         }
     }
-    
+
+    // Mix 30% reviews and 70% new words to prioritize learning new vocabulary rapidly.
+    if (dueReviews.length > 0 && newWords.length > 0) {
+        if (Math.random() < 0.3) {
+            return dueReviews[Math.floor(Math.random() * dueReviews.length)];
+        } else {
+            const batchSize = Math.min(newWords.length, 20);
+            return newWords[Math.floor(Math.random() * batchSize)];
+        }
+    }
+
     if (dueReviews.length > 0) {
         return dueReviews[Math.floor(Math.random() * dueReviews.length)];
     }
-    
+
     if (newWords.length > 0) {
-        // Return a random new word rather than alphabetical
-        return newWords[Math.floor(Math.random() * newWords.length)];
+        // Create a 'learning batch' to learn progressively instead of purely random over the entire set
+        const batchSize = Math.min(newWords.length, 20);
+        return newWords[Math.floor(Math.random() * batchSize)];
     }
-    
+
     // Fallback: If everything is perfectly queued (no new words, no due reviews),
-    // return a completely random word to kill time.
-    return allWords[Math.floor(Math.random() * allWords.length)];
+    // return a completely random word to kill time (excluding immediate repeat).
+    let candidates = allWords.filter(w => !currentWord || w.id !== currentWord.id);
+    if (candidates.length === 0) candidates = allWords;
+    return candidates[Math.floor(Math.random() * candidates.length)];
 }
 
 function gradeAnswer(rating) {
@@ -329,11 +345,11 @@ function gradeAnswer(rating) {
     const id = currentWord.id;
     let rev = getDeckData().reviews[id] || { step: 0, interval: 0, nextReview: 0 };
     rev.seenCount = (rev.seenCount || 0) + 1;
-    
+
     const now = Date.now();
     const M_MINUTE = 60 * 1000;
     const M_DAY = 24 * 60 * M_MINUTE;
-    
+
     // Simple Spaced Repetition (SuperMemo-2 inspired simplified logic)
     if (rating === 'known') { // Left Swipe
         if (rev.step === 0) {
@@ -346,12 +362,12 @@ function gradeAnswer(rating) {
         rev.interval = 12 * 60 * M_MINUTE; // 12 hours
     } else if (rating === 'unknown') { // Right Swipe
         rev.step = 0;
-        rev.interval = 10 * M_MINUTE; // See it again in 10 minutes
+        rev.interval = 3 * M_MINUTE; // 3 mins for faster short-term reinforcement
     }
-    
+
     rev.nextReview = now + rev.interval;
     getDeckData().reviews[id] = rev;
-    
+
     syncDataToCloud();
 }
 
@@ -363,10 +379,18 @@ function processAnswer(rating) {
 /* 
  * 4. UI Rendering
  */
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
 function nextCard() {
     isFlipped = false;
     currentWord = getNextWord();
-    
+
     // Reset classes and scroll position
     document.body.classList.remove('state-back', 'state-auth');
     document.body.classList.add('state-front');
@@ -374,35 +398,35 @@ function nextCard() {
     dom.backDetails.scrollTop = 0;
     if (dom.cardTrigger) dom.cardTrigger.scrollTop = 0; /* Fixes scroll retention across cards */
     dom.controlsBack.style.display = 'none';
-    
+
     // Quiz Mode Logic
     dom.quizOptions.innerHTML = '';
-    
+
     if (isQuizMode) {
         dom.modeStudy.classList.remove('active');
         dom.modeQuiz.classList.add('active');
-        
+
         dom.quizOptions.classList.remove('hidden');
         dom.controlsFront.style.display = 'none';
         dom.controlsQuiz.style.display = 'none';
-        
+
         generateQuiz();
     } else {
         dom.modeQuiz.classList.remove('active');
         dom.modeStudy.classList.add('active');
-        
+
         dom.quizOptions.classList.add('hidden');
         dom.controlsFront.style.display = 'flex';
         dom.controlsQuiz.style.display = 'none';
     }
-    
+
     // Populate Front
     dom.word.innerText = currentWord.word;
-    
+
     let rev = getDeckData().reviews[currentWord.id];
     let seenCount = (rev && rev.seenCount) ? rev.seenCount : 0;
     if (seenCount === 0 && rev && rev.interval > 0) seenCount = 1; // Fallback for old data
-    
+
     let rankIcon = '🌱';
     let step = rev ? rev.step : 0;
     if (step >= 4) rankIcon = '👑';
@@ -412,14 +436,14 @@ function nextCard() {
 
     let seenStr = seenCount > 0 ? ` • SEEN ${seenCount} TIMES` : ' • NEW';
     dom.pos.innerText = `${currentWord.pos}${seenStr} ${rankIcon}`;
-    
+
     if (dom.combo) dom.combo.innerText = `${currentCombo} Combo!`;
-    
+
     dom.pronunciation.innerText = currentWord.pronunciation;
-    
+
     // Pre-populate Back
     dom.definition.innerText = currentWord.definition;
-    
+
     dom.examples.innerHTML = '';
     if (currentWord.examples && currentWord.examples.length > 0) {
         currentWord.examples.forEach(ex => {
@@ -430,14 +454,14 @@ function nextCard() {
     } else {
         dom.examples.innerHTML = '<li>No examples provided.</li>';
     }
-    
+
     updateProgressUI();
 }
 
 function flipCard() {
     if (isQuizMode || isFlipped) return;
     isFlipped = true;
-    
+
     document.body.classList.remove('state-front');
     document.body.classList.add('state-back');
     dom.backDetails.style.display = 'block';
@@ -449,61 +473,57 @@ function generateQuiz() {
     let quizAnswered = false;
     let options = [];
     options.push({ text: currentWord.definition, correct: true, word: currentWord.word, pronunciation: currentWord.pronunciation, roots: currentWord.roots });
-    
+
     // Strict POS Matching Filtering
     let candidates = allWords.filter(w => w.id !== currentWord.id && w.pos === currentWord.pos);
-    
+
     // Fallback if not enough matches found
     if (candidates.length < 3) {
         candidates = allWords.filter(w => w.id !== currentWord.id);
     }
-    
-    candidates.sort(() => 0.5 - Math.random());
-    
+
+    shuffleArray(candidates);
+
     for (let i = 0; i < 3; i++) {
         let cw = candidates[i];
         options.push({ text: cw.definition, correct: false, word: cw.word, pronunciation: cw.pronunciation, roots: cw.roots });
-        
-        // Count as "Seen" because it was presented as an option
-        let r = getDeckData().reviews[cw.id] || { step: 0, interval: 0, nextReview: 0 };
-        r.seenCount = (r.seenCount || 0) + 1;
-        getDeckData().reviews[cw.id] = r;
+        // Removed artificial "seenCount" increment for distractors so it doesn't skew user's sense of repetition
     }
-    
-    options.sort(() => 0.5 - Math.random());
-    
+
+    shuffleArray(options);
+
     options.forEach(opt => {
         const btn = document.createElement('button');
         btn.className = 'quiz-btn';
         btn.innerHTML = `<div class="quiz-def">${opt.text}</div>`;
         btn.optData = opt;
-        
+
         btn.onclick = (e) => {
             e.stopPropagation();
             if (quizAnswered) return;
             quizAnswered = true;
-            
+
             if (opt.correct) {
                 currentCombo++;
             } else {
                 currentCombo--;
                 if (currentCombo < 0) currentCombo = 0;
             }
-            
+
             getDeckData().combo = currentCombo;
             gradeAnswer(opt.correct ? 'known' : 'unknown');
-            
+
             const allBtns = dom.quizOptions.querySelectorAll('.quiz-btn');
             allBtns.forEach(b => {
                 const bOpt = b.optData;
                 if (bOpt.correct) b.classList.add('correct');
                 else if (b === btn) b.classList.add('wrong');
-                
+
                 const wordSpan = document.createElement('div');
                 wordSpan.className = 'quiz-word-reveal';
                 wordSpan.style.display = 'flex';
                 wordSpan.style.alignItems = 'center';
-                
+
                 const speakerBtn = document.createElement('button');
                 speakerBtn.className = 'icon-btn audio-btn';
                 speakerBtn.style.padding = '0';
@@ -515,24 +535,24 @@ function generateQuiz() {
                     ev.stopPropagation();
                     speakText(bOpt.word);
                 };
-                
+
                 const textSpan = document.createElement('span');
                 let pronunStr = bOpt.pronunciation ? ` <span class="quiz-pronun">(${bOpt.pronunciation})</span>` : '';
                 textSpan.innerHTML = `${bOpt.word}${pronunStr}`;
-                
+
                 const wordContainer = document.createElement('div');
                 wordContainer.style.display = 'flex';
                 wordContainer.style.flexDirection = 'column';
                 wordContainer.style.alignItems = 'flex-start';
-                
+
                 const topRow = document.createElement('div');
                 topRow.style.display = 'flex';
                 topRow.style.alignItems = 'center';
                 topRow.appendChild(speakerBtn);
                 topRow.appendChild(textSpan);
-                
+
                 wordContainer.appendChild(topRow);
-                
+
                 if (bOpt.roots) {
                     const rootsSpan = document.createElement('div');
                     rootsSpan.style.marginTop = '4px';
@@ -541,13 +561,13 @@ function generateQuiz() {
                     rootsSpan.style.marginLeft = '32px';
                     wordContainer.appendChild(rootsSpan);
                 }
-                
+
                 wordSpan.appendChild(wordContainer);
                 b.insertBefore(wordSpan, b.firstChild);
             });
-            
+
             if (dom.combo) dom.combo.innerText = `${currentCombo} Combo!`;
-            
+
             const topCombo = document.getElementById('combo-display');
             if (topCombo) {
                 if (currentCombo >= 10) {
@@ -557,7 +577,7 @@ function generateQuiz() {
                     topCombo.style.opacity = '0';
                 }
             }
-            
+
             dom.controlsQuiz.style.display = 'flex';
         };
         dom.quizOptions.appendChild(btn);
@@ -576,7 +596,7 @@ function showView(viewId) {
 }
 
 // Text to Speech
-window.speakWord = function() {
+window.speakWord = function () {
     if (!currentWord) return;
     const utterance = new SpeechSynthesisUtterance(currentWord.word);
     utterance.lang = 'en-US';
@@ -597,7 +617,7 @@ function attachEventListeners() {
         }
         signInWithPopup(auth, new GoogleAuthProvider()).catch(e => console.error(e));
     });
-    
+
     dom.btnLogout.addEventListener('click', () => {
         if (hasFirebaseConfig && auth.currentUser) {
             signOut(auth).then(() => showView('auth'));
@@ -618,7 +638,7 @@ function attachEventListeners() {
         }
     }
     applyTheme();
-    
+
     dom.btnLibrary.addEventListener('click', () => {
         renderDeckList();
         showView('deck');
@@ -640,7 +660,7 @@ function attachEventListeners() {
         isQuizMode = false;
         nextCard();
     });
-    
+
     dom.modeQuiz.addEventListener('click', () => {
         if (isQuizMode) return;
         isQuizMode = true;
@@ -662,11 +682,11 @@ function attachEventListeners() {
         e.stopPropagation();
         nextCard();
     });
-    
+
     // Keyboard Support (Arrows)
     document.addEventListener('keydown', (e) => {
         if (views.card.classList.contains('hidden') || isQuizMode) return;
-        
+
         if (!isFlipped && (e.code === 'Space' || e.code === 'Enter' || e.code === 'ArrowUp')) {
             flipCard();
         } else if (isFlipped) {
@@ -681,7 +701,7 @@ function attachEventListeners() {
     // ----------------------------------------------------
     let touchStartX = 0;
     let touchStartY = 0;
-    
+
     document.addEventListener('touchstart', e => {
         touchStartX = e.changedTouches[0].screenX;
         touchStartY = e.changedTouches[0].screenY;
@@ -689,10 +709,10 @@ function attachEventListeners() {
 
     document.addEventListener('touchend', e => {
         if (!isFlipped || views.card.classList.contains('hidden') || isQuizMode) return;
-        
+
         let touchEndX = e.changedTouches[0].screenX;
         let touchEndY = e.changedTouches[0].screenY;
-        
+
         handleSwipe(touchStartX, touchStartY, touchEndX, touchEndY);
     });
 
@@ -737,17 +757,17 @@ function renderDeckList() {
             activeDeckId = d.id;
             localStorage.setItem('activeDeckId', activeDeckId);
             showView('loading');
-            
+
             try {
                 const response = await fetch(d.file + '?v=47');
                 allWords = await response.json();
             } catch (e) {
                 console.error("Failed to load deck:", e);
             }
-            
+
             currentCombo = getDeckData().combo || 0;
             if (dom.combo) dom.combo.innerText = `${currentCombo} Combo!`;
-            
+
             showView('card');
             nextCard();
         };
