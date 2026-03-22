@@ -569,12 +569,7 @@ function generateQuiz() {
 
             const topCombo = document.getElementById('combo-display');
             if (topCombo) {
-                if (currentCombo >= 10) {
-                    topCombo.innerText = `🔥 ${currentCombo} COMBO!`;
-                    topCombo.style.opacity = '1';
-                } else {
-                    topCombo.style.opacity = '0';
-                }
+                topCombo.style.display = 'none';
             }
 
             dom.controlsQuiz.style.display = 'flex';
