@@ -116,23 +116,29 @@ async function init() {
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 // Backward Compatibility Migration & Aggressive Recovery!
-                // Unconditionally merge legacy reviews if they exist
-                if (userData.reviews) {
+                // Unconditionally merge legacy reviews and combo if they exist
+                if (userData.reviews || userData.combo !== undefined) {
                     if (!userData.decks) userData.decks = {};
                     if (!userData.decks['sat_word_smart']) userData.decks['sat_word_smart'] = { reviews: {} };
                     
-                    // Forcefully merge all legacy data into the current deck, overriding the 3-card test data
-                    userData.decks['sat_word_smart'].reviews = {
-                        ...userData.decks['sat_word_smart'].reviews,
-                        ...userData.reviews
-                    };
-                    delete userData.reviews;
+                    if (userData.reviews) {
+                        userData.decks['sat_word_smart'].reviews = {
+                            ...userData.decks['sat_word_smart'].reviews,
+                            ...userData.reviews
+                        };
+                        delete userData.reviews;
+                    }
+                    if (userData.combo !== undefined) {
+                        userData.decks['sat_word_smart'].combo = userData.combo;
+                        delete userData.combo;
+                    }
                     syncDataToCloud(); // Save migrated data backwards seamlessly
                 }
                 // Fresh start for the new user
                 userData = { reviews: {} };
                 currentUser = user;
                 await syncDataFromCloud();
+                currentCombo = getDeckData().combo || 0;
                 showView('card');
                 nextCard();
             } else {
@@ -146,6 +152,7 @@ async function init() {
         // Fallback to local storage
         console.log("Running in LocalStorage fallback mode.");
         loadLocalData('guest');
+        currentCombo = getDeckData().combo || 0;
         showView('card');
         nextCard();
     }
@@ -169,18 +176,25 @@ async function syncDataFromCloud() {
             userData = docSnap.data();
             
             // AGGRESSIVE RECOVERY MIGRATION: Restore orphaned legacy data safely!
-            if (userData.reviews) {
+            if (userData.reviews || userData.combo !== undefined) {
                 if (!userData.decks) userData.decks = {};
                 if (!userData.decks['sat_word_smart']) userData.decks['sat_word_smart'] = { reviews: {} };
                 
-                userData.decks['sat_word_smart'].reviews = {
-                    ...userData.reviews,
-                    ...userData.decks['sat_word_smart'].reviews
-                };
-                delete userData.reviews;
+                if (userData.reviews) {
+                    userData.decks['sat_word_smart'].reviews = {
+                        ...userData.reviews,
+                        ...userData.decks['sat_word_smart'].reviews
+                    };
+                    delete userData.reviews;
+                }
+                
+                if (userData.combo !== undefined) {
+                    userData.decks['sat_word_smart'].combo = userData.combo;
+                    delete userData.combo;
+                }
                 
                 // Immediately save the securely migrated data back to the cloud
-                await setDoc(docRef, userData); // Replace document entirely to permanently purge the legacy reviews block
+                await setDoc(docRef, userData); // Replace document entirely to permanently purge the legacy data block
             }
             
             if (!getDeckData().reviews) userData.decks[activeDeckId].reviews = {};
@@ -217,15 +231,22 @@ function loadLocalData() {
         userData = JSON.parse(saved);
         
         // AGGRESSIVE RECOVERY MIGRATION (Local)
-        if (userData.reviews) {
+        if (userData.reviews || userData.combo !== undefined) {
             if (!userData.decks) userData.decks = {};
             if (!userData.decks['sat_word_smart']) userData.decks['sat_word_smart'] = { reviews: {} };
             
-            userData.decks['sat_word_smart'].reviews = {
-                ...userData.reviews,
-                ...userData.decks['sat_word_smart'].reviews
-            };
-            delete userData.reviews;
+            if (userData.reviews) {
+                userData.decks['sat_word_smart'].reviews = {
+                    ...userData.reviews,
+                    ...userData.decks['sat_word_smart'].reviews
+                };
+                delete userData.reviews;
+            }
+            
+            if (userData.combo !== undefined) {
+                userData.decks['sat_word_smart'].combo = userData.combo;
+                delete userData.combo;
+            }
             
             // Sync up to ensure local purge hits cloud without merge flag
             if (hasFirebaseConfig && currentUser) {
@@ -427,7 +448,7 @@ function flipCard() {
 function generateQuiz() {
     let quizAnswered = false;
     let options = [];
-    options.push({ text: currentWord.definition, correct: true, word: currentWord.word, pronunciation: currentWord.pronunciation });
+    options.push({ text: currentWord.definition, correct: true, word: currentWord.word, pronunciation: currentWord.pronunciation, roots: currentWord.roots });
     
     // Strict POS Matching Filtering
     let candidates = allWords.filter(w => w.id !== currentWord.id && w.pos === currentWord.pos);
@@ -441,7 +462,7 @@ function generateQuiz() {
     
     for (let i = 0; i < 3; i++) {
         let cw = candidates[i];
-        options.push({ text: cw.definition, correct: false, word: cw.word, pronunciation: cw.pronunciation });
+        options.push({ text: cw.definition, correct: false, word: cw.word, pronunciation: cw.pronunciation, roots: cw.roots });
         
         // Count as "Seen" because it was presented as an option
         let r = getDeckData().reviews[cw.id] || { step: 0, interval: 0, nextReview: 0 };
@@ -466,8 +487,10 @@ function generateQuiz() {
                 currentCombo++;
             } else {
                 currentCombo--;
+                if (currentCombo < 0) currentCombo = 0;
             }
             
+            getDeckData().combo = currentCombo;
             gradeAnswer(opt.correct ? 'known' : 'unknown');
             
             const allBtns = dom.quizOptions.querySelectorAll('.quiz-btn');
@@ -497,8 +520,30 @@ function generateQuiz() {
                 let pronunStr = bOpt.pronunciation ? ` <span class="quiz-pronun">(${bOpt.pronunciation})</span>` : '';
                 textSpan.innerHTML = `${bOpt.word}${pronunStr}`;
                 
-                wordSpan.appendChild(speakerBtn);
-                wordSpan.appendChild(textSpan);
+                const wordContainer = document.createElement('div');
+                wordContainer.style.display = 'flex';
+                wordContainer.style.flexDirection = 'column';
+                wordContainer.style.alignItems = 'flex-start';
+                
+                const topRow = document.createElement('div');
+                topRow.style.display = 'flex';
+                topRow.style.alignItems = 'center';
+                topRow.appendChild(speakerBtn);
+                topRow.appendChild(textSpan);
+                
+                wordContainer.appendChild(topRow);
+                
+                if (bOpt.roots) {
+                    const rootsSpan = document.createElement('div');
+                    rootsSpan.style.marginTop = '4px';
+                    rootsSpan.style.fontSize = '0.9rem';
+                    rootsSpan.style.color = '#888';
+                    rootsSpan.innerHTML = `<em>Roots: ${bOpt.roots}</em>`;
+                    rootsSpan.style.marginLeft = '32px';
+                    wordContainer.appendChild(rootsSpan);
+                }
+                
+                wordSpan.appendChild(wordContainer);
                 b.insertBefore(wordSpan, b.firstChild);
             });
             
@@ -701,8 +746,8 @@ function renderDeckList() {
                 console.error("Failed to load deck:", e);
             }
             
-            currentCombo = 0;
-            if (dom.combo) dom.combo.innerText = `0 Combo!`;
+            currentCombo = getDeckData().combo || 0;
+            if (dom.combo) dom.combo.innerText = `${currentCombo} Combo!`;
             
             showView('card');
             nextCard();
