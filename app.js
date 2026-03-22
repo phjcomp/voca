@@ -318,8 +318,8 @@ function getNextWord() {
         if (Math.random() < 0.3) {
             return dueReviews[Math.floor(Math.random() * dueReviews.length)];
         } else {
-            const batchSize = Math.min(newWords.length, 20);
-            return newWords[Math.floor(Math.random() * batchSize)];
+            // Pick a completely random new word out of ALL available new words
+            return newWords[Math.floor(Math.random() * newWords.length)];
         }
     }
 
@@ -328,9 +328,8 @@ function getNextWord() {
     }
 
     if (newWords.length > 0) {
-        // Create a 'learning batch' to learn progressively instead of purely random over the entire set
-        const batchSize = Math.min(newWords.length, 20);
-        return newWords[Math.floor(Math.random() * batchSize)];
+        // Pick a completely random new word out of ALL available new words
+        return newWords[Math.floor(Math.random() * newWords.length)];
     }
 
     // Fallback: If everything is perfectly queued (no new words, no due reviews),
